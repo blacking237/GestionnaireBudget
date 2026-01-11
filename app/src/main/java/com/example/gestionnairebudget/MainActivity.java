@@ -3,7 +3,6 @@ package com.example.gestionnairebudget;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +23,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
+import android.content.Intent;
+
 
 /**
  * GESTIONNAIRE DE BUDGET COMPLET
@@ -31,21 +32,17 @@ import java.util.concurrent.Executors;
  */
 public class MainActivity extends AppCompatActivity {
 
-    // ========== VARIABLES D'INTERFACE ==========
     private EditText editBudget;
     private Spinner spinnerCategorie;
     private EditText editDesignation;
     private EditText editMontant;
-    private Button btnDefinirBudget;
-    private Button btnAjouterDepense;
-    private Button btnVoirHistorique;
-    private Button btnGenererRapport;
-    private Button btnVoirRapports;
-    private TextView textSituation;
-    private LinearLayout layoutCategories;
-    private TextView textHistorique;
+    private Button btnDefinirBudget, btnAjouterDepense,
+            btnVoirHistorique, btnGenererRapport, btnVoirRapports;
+    private Button btnRetour, btnDeconnexion;
 
-    // ========== VARIABLES DE DONNÉES ==========
+    private TextView textSituation, textHistorique;
+    private LinearLayout layoutCategories;
+
     private double budgetMensuel = 0.0;
     private CategorieBudget[] categories;
     private AppDatabase database;
@@ -58,38 +55,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialiser la base de données
         database = AppDatabase.getInstance(this);
-
-        // Initialiser SharedPreferences pour sauvegarder le budget
         prefs = getSharedPreferences("BudgetPrefs", MODE_PRIVATE);
 
-        // Charger le budget sauvegardé
-        chargerBudgetSauvegarde();
-
-        // Initialiser les catégories
-        initialiserCategories();
-
-        // Connecter les vues
         connecterVues();
-
-        // Configurer le Spinner
+        chargerBudgetSauvegarde();
+        initialiserCategories();
         configurerSpinner();
-
-        // Configurer les boutons
         configurerBoutons();
 
-        // Si le budget est déjà défini, afficher les catégories
         if (budgetDefini) {
             afficherCategories();
             mettreAJourSituation();
         }
     }
 
-
-    /**
-     * Charger le budget sauvegardé
-     */
     private void chargerBudgetSauvegarde() {
         budgetMensuel = Double.longBitsToDouble(prefs.getLong("budgetMensuel", 0));
         if (budgetMensuel > 0) {
@@ -98,48 +78,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    /**
-     * Initialiser les catégories
-     */
     private void initialiserCategories() {
         categories = CategoriesManager.creerCategoriesParDefaut();
 
         if (budgetDefini) {
-            // Calculer les montants alloués
-            for (int i = 0; i < categories.length; i++) {
-                categories[i].calculerMontantAlloue(budgetMensuel);
+            for (CategorieBudget cat : categories) {
+                cat.calculerMontantAlloue(budgetMensuel);
             }
-
-            // Charger les dépenses du mois en cours depuis la BDD
             chargerDepensesMoisEnCours();
         }
     }
 
-
-    /**
-     * Charger les dépenses du mois en cours depuis la base de données
-     */
     private void chargerDepensesMoisEnCours() {
         Executors.newSingleThreadExecutor().execute(() -> {
             Calendar cal = Calendar.getInstance();
             int mois = cal.get(Calendar.MONTH) + 1;
             int annee = cal.get(Calendar.YEAR);
 
-            List<DepenseEntity> depensesMois = database.depenseDao().getDepensesParMois(mois, annee);
+            List<DepenseEntity> depenses =
+                    database.depenseDao().getDepensesParMois(mois, annee);
 
-            // Pour chaque catégorie, calculer le total utilisé
-            for (int i = 0; i < categories.length; i++) {
-                String nomCategorie = categories[i].getNom();
-                double totalCategorie = 0.0;
-
-                for (DepenseEntity depense : depensesMois) {
-                    if (depense.getCategorie().equals(nomCategorie)) {
-                        totalCategorie += depense.getMontant();
+            for (CategorieBudget cat : categories) {
+                double total = 0;
+                for (DepenseEntity d : depenses) {
+                    if (d.getCategorie().equals(cat.getNom())) {
+                        total += d.getMontant();
                     }
                 }
-
-                categories[i].setMontantUtilise(totalCategorie);
+                cat.setMontantUtilise(total);
             }
 
             runOnUiThread(() -> {
@@ -149,10 +115,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-    /**
-     * Connecter les vues
-     */
     private void connecterVues() {
         editBudget = findViewById(R.id.editBudget);
         spinnerCategorie = findViewById(R.id.spinnerCategorie);
@@ -166,132 +128,144 @@ public class MainActivity extends AppCompatActivity {
         textSituation = findViewById(R.id.textSituation);
         layoutCategories = findViewById(R.id.layoutCategories);
         textHistorique = findViewById(R.id.textHistorique);
+        btnRetour = findViewById(R.id.btnRetour);
+        btnDeconnexion = findViewById(R.id.btnDeconnexion);
+
     }
 
-
-    /**
-     * Configurer le Spinner
-     */
     private void configurerSpinner() {
-        String[] nomsCategories = new String[categories.length];
-
+        String[] noms = new String[categories.length];
         for (int i = 0; i < categories.length; i++) {
-            nomsCategories[i] = categories[i].getNom() + " (" +
+            noms[i] = categories[i].getNom() + " (" +
                     categories[i].getPourcentageAlloue() + "%)";
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
-                nomsCategories
+                noms
         );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+        );
         spinnerCategorie.setAdapter(adapter);
     }
 
-
-    /**
-     * Configurer les boutons
-     */
     private void configurerBoutons() {
-
         btnDefinirBudget.setOnClickListener(v -> definirBudget());
-
         btnAjouterDepense.setOnClickListener(v -> ajouterDepense());
-
         btnVoirHistorique.setOnClickListener(v -> afficherHistorique());
-
         btnGenererRapport.setOnClickListener(v -> afficherMenuRapports());
-
         btnVoirRapports.setOnClickListener(v -> afficherRapportsSauvegardes());
+
+        // 🔙 Bouton RETOUR
+        btnRetour.setOnClickListener(v -> {
+            onBackPressed(); // Android gère automatiquement la page précédente
+        });
+
+// 🔒 Bouton DÉCONNEXION
+        btnDeconnexion.setOnClickListener(v -> {
+
+            // Supprimer la session utilisateur
+            getSharedPreferences("USER_SESSION", MODE_PRIVATE)
+                    .edit()
+                    .clear()
+                    .apply();
+
+            Toast.makeText(this,
+                    "Déconnexion réussie",
+                    Toast.LENGTH_SHORT).show();
+
+            // Retour à la page de connexion
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+
     }
 
-
-    /**
-     * Définir le budget
-     */
     private void definirBudget() {
-        String texte = editBudget.getText().toString();
+        String txt = editBudget.getText().toString();
 
-        if (texte.isEmpty()) {
-            Toast.makeText(this, "⚠️ Entrez un montant", Toast.LENGTH_SHORT).show();
+        if (txt.isEmpty()) {
+            Toast.makeText(this,
+                    "\u26A0\uFE0F Entrez un montant",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
-            budgetMensuel = Double.parseDouble(texte);
-
+            budgetMensuel = Double.parseDouble(txt);
             if (budgetMensuel <= 0) {
-                Toast.makeText(this, "❌ Budget doit être > 0", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,
+                        "\u274C Budget doit être > 0",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
 
             budgetDefini = true;
+            prefs.edit().putLong("budgetMensuel",
+                    Double.doubleToRawLongBits(budgetMensuel)).apply();
 
-            // Sauvegarder le budget dans SharedPreferences
-            prefs.edit().putLong("budgetMensuel", Double.doubleToRawLongBits(budgetMensuel)).apply();
-
-            // Calculer les montants alloués
-            for (int i = 0; i < categories.length; i++) {
-                categories[i].calculerMontantAlloue(budgetMensuel);
+            for (CategorieBudget cat : categories) {
+                cat.calculerMontantAlloue(budgetMensuel);
             }
 
-            // Charger les dépenses existantes
             chargerDepensesMoisEnCours();
 
-            // Planifier les rapports automatiques
             scheduler = new RapportScheduler(this);
             scheduler.planifierTousLesRapports();
 
-            Toast.makeText(this, "✅ Budget défini : " + budgetMensuel + " FCFA\n📊 Rapports automatiques activés", Toast.LENGTH_LONG).show();
-
-            afficherCategories();
-            mettreAJourSituation();
+            Toast.makeText(this,
+                    "\u2705 Budget défini : " + budgetMensuel +
+                            " FCFA\n\uD83D\uDCCA Rapports automatiques activés",
+                    Toast.LENGTH_LONG).show();
 
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "❌ Format invalide", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,
+                    "\u274C Format invalide",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
-
-    /**
-     * Ajouter une dépense
-     */
     private void ajouterDepense() {
         if (!budgetDefini) {
-            Toast.makeText(this, "⚠️ Définissez d'abord votre budget", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,
+                    "\u26A0\uFE0F Définissez d'abord votre budget",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
-        int positionCategorie = spinnerCategorie.getSelectedItemPosition();
+        int pos = spinnerCategorie.getSelectedItemPosition();
         String designation = editDesignation.getText().toString();
-        String montantTexte = editMontant.getText().toString();
+        String montantTxt = editMontant.getText().toString();
 
-        if (designation.isEmpty() || montantTexte.isEmpty()) {
-            Toast.makeText(this, "⚠️ Remplissez tous les champs", Toast.LENGTH_SHORT).show();
+        if (designation.isEmpty() || montantTxt.isEmpty()) {
+            Toast.makeText(this,
+                    "\u26A0\uFE0F Remplissez tous les champs",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
-            double montant = Double.parseDouble(montantTexte);
-
+            double montant = Double.parseDouble(montantTxt);
             if (montant <= 0) {
-                Toast.makeText(this, "❌ Montant doit être > 0", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,
+                        "\u274C Montant doit être > 0",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            CategorieBudget categorieSelectionnee = categories[positionCategorie];
-            String nomCategorie = categorieSelectionnee.getNom();
+            CategorieBudget cat = categories[pos];
+            cat.ajouterDepense(montant);
 
-            // Ajouter le montant à la catégorie (en mémoire)
-            categorieSelectionnee.ajouterDepense(montant);
-
-            // Créer l'entité pour la BDD
             Calendar cal = Calendar.getInstance();
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            SimpleDateFormat sdf =
+                    new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
-            DepenseEntity depenseEntity = new DepenseEntity(
-                    nomCategorie,
+            DepenseEntity dep = new DepenseEntity(
+                    cat.getNom(),
                     designation,
                     montant,
                     System.currentTimeMillis(),
@@ -302,25 +276,23 @@ public class MainActivity extends AppCompatActivity {
                     cal.get(Calendar.YEAR)
             );
 
-            // Insérer dans la base de données (en arrière-plan)
-            Executors.newSingleThreadExecutor().execute(() -> {
-                database.depenseDao().inserer(depenseEntity);
-            });
+            Executors.newSingleThreadExecutor().execute(() ->
+                    database.depenseDao().inserer(dep));
 
-            // Vérifier les seuils
-            double pourcentageUtilise = categorieSelectionnee.getPourcentageUtilise();
-            if (pourcentageUtilise >= 70 && pourcentageUtilise < 100) {
+            double pct = cat.getPourcentageUtilise();
+            if (pct >= 70 && pct < 100) {
                 Toast.makeText(this,
-                        "🚨 ALERTE : " + nomCategorie + " a atteint " +
-                                String.format("%.1f", pourcentageUtilise) + "% !",
+                        "\uD83D\uDEA8 ALERTE : " + cat.getNom() +
+                                " " + String.format("%.1f", pct) + "%",
                         Toast.LENGTH_LONG).show();
-            } else if (pourcentageUtilise >= 100) {
+            } else if (pct >= 100) {
                 Toast.makeText(this,
-                        "❌ DÉPASSEMENT : " + nomCategorie + " est à " +
-                                String.format("%.1f", pourcentageUtilise) + "% !",
+                        "\u274C DÉPASSEMENT : " + cat.getNom(),
                         Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "✅ Dépense ajoutée : " + montant + " FCFA", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,
+                        "\u2705 Dépense ajoutée",
+                        Toast.LENGTH_SHORT).show();
             }
 
             editDesignation.setText("");
@@ -330,221 +302,162 @@ public class MainActivity extends AppCompatActivity {
             mettreAJourSituation();
 
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "❌ Format invalide", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,
+                    "\u274C Format invalide",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
-
-    /**
-     * Afficher les catégories avec couleurs
-     */
     private void afficherCategories() {
         layoutCategories.removeAllViews();
-
-        for (int i = 0; i < categories.length; i++) {
-            CategorieBudget cat = categories[i];
-
-            TextView tvCategorie = new TextView(this);
-            String texte = cat.afficherResume();
-            tvCategorie.setText(texte);
-            tvCategorie.setTextSize(14);
-            tvCategorie.setPadding(20, 15, 20, 15);
-            tvCategorie.setTextColor(Color.BLACK);
-            tvCategorie.setBackgroundColor(cat.getCouleurCode());
-
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            params.setMargins(0, 0, 0, 10);
-            tvCategorie.setLayoutParams(params);
-
-            layoutCategories.addView(tvCategorie);
+        for (CategorieBudget cat : categories) {
+            TextView tv = new TextView(this);
+            tv.setText(cat.afficherResume());
+            tv.setPadding(20, 15, 20, 15);
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(cat.getCouleurCode());
+            layoutCategories.addView(tv);
         }
     }
 
-
-    /**
-     * Afficher l'historique depuis la BDD
-     */
     private void afficherHistorique() {
         Executors.newSingleThreadExecutor().execute(() -> {
             Calendar cal = Calendar.getInstance();
             int mois = cal.get(Calendar.MONTH) + 1;
             int annee = cal.get(Calendar.YEAR);
 
-            List<DepenseEntity> depenses = database.depenseDao().getDepensesParMois(mois, annee);
+            List<DepenseEntity> depenses =
+                    database.depenseDao().getDepensesParMois(mois, annee);
 
             runOnUiThread(() -> {
                 if (depenses.isEmpty()) {
-                    textHistorique.setText("📋 HISTORIQUE\n\nAucune dépense ce mois-ci");
+                    textHistorique.setText(
+                            "\uD83D\uDCCB HISTORIQUE\n\nAucune dépense ce mois-ci"
+                    );
                     return;
                 }
 
-                StringBuilder historique = new StringBuilder();
-                historique.append("📋 HISTORIQUE DU MOIS\n");
-                historique.append("════════════════════════\n\n");
+                StringBuilder sb = new StringBuilder();
+                sb.append("\uD83D\uDCCB HISTORIQUE DU MOIS\n\n");
 
-                double total = 0.0;
-                for (int i = 0; i < depenses.size(); i++) {
-                    DepenseEntity d = depenses.get(i);
-
-                    historique.append("🔸 #").append(i + 1).append("\n");
-                    historique.append("   📁 ").append(d.getCategorie()).append("\n");
-                    historique.append("   📝 ").append(d.getDesignation()).append("\n");
-                    historique.append("   💵 ").append(d.getMontant()).append(" FCFA\n");
-                    historique.append("   📅 ").append(d.getDateFormatee()).append("\n\n");
-
+                double total = 0;
+                for (DepenseEntity d : depenses) {
+                    sb.append("- ").append(d.getCategorie())
+                            .append(" : ").append(d.getMontant()).append(" FCFA\n");
                     total += d.getMontant();
                 }
 
-                historique.append("════════════════════════\n");
-                historique.append("💰 TOTAL : ").append(String.format("%.0f", total)).append(" FCFA\n");
-                historique.append("📊 Transactions : ").append(depenses.size());
+                sb.append("\n\uD83D\uDCB0 TOTAL : ")
+                        .append(String.format("%.0f", total)).append(" FCFA");
 
-                textHistorique.setText(historique.toString());
+                textHistorique.setText(sb.toString());
             });
         });
     }
 
-
-    /**
-     * Menu pour générer les rapports manuellement
-     */
     private void afficherMenuRapports() {
-        String[] options = {"📅 Rapport Journalier", "📊 Rapport Hebdomadaire", "📈 Rapport Mensuel"};
+        String[] options = {
+                "\uD83D\uDCC5 Rapport Journalier",
+                "\uD83D\uDCCA Rapport Hebdomadaire",
+                "\uD83D\uDCC8 Rapport Mensuel"
+        };
 
         new AlertDialog.Builder(this)
                 .setTitle("Générer un rapport")
-                .setItems(options, (dialog, which) -> {
-                    switch (which) {
-                        case 0:
-                            genererRapportManuel("JOURNALIER");
-                            break;
-                        case 1:
-                            genererRapportManuel("HEBDOMADAIRE");
-                            break;
-                        case 2:
-                            genererRapportManuel("MENSUEL");
-                            break;
-                    }
+                .setItems(options, (d, w) -> {
+                    if (w == 0) genererRapportManuel("JOURNALIER");
+                    if (w == 1) genererRapportManuel("HEBDOMADAIRE");
+                    if (w == 2) genererRapportManuel("MENSUEL");
                 })
                 .show();
     }
 
-
-    /**
-     * Générer un rapport manuellement
-     */
     private void genererRapportManuel(String type) {
-        Toast.makeText(this, "⏳ Génération du rapport...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,
+                "\u23F3 Génération du rapport...",
+                Toast.LENGTH_SHORT).show();
 
         Executors.newSingleThreadExecutor().execute(() -> {
-            RapportGenerator generator = new RapportGenerator(database, budgetMensuel);
-            RapportEntity rapport = null;
+            RapportGenerator gen =
+                    new RapportGenerator(database, budgetMensuel);
+            RapportEntity r = null;
 
-            if ("JOURNALIER".equals(type)) {
-                rapport = generator.genererRapportJournalier();
-            } else if ("HEBDOMADAIRE".equals(type)) {
-                rapport = generator.genererRapportHebdomadaire();
-            } else if ("MENSUEL".equals(type)) {
-                rapport = generator.genererRapportMensuel();
-            }
+            if ("JOURNALIER".equals(type)) r = gen.genererRapportJournalier();
+            if ("HEBDOMADAIRE".equals(type)) r = gen.genererRapportHebdomadaire();
+            if ("MENSUEL".equals(type)) r = gen.genererRapportMensuel();
 
-            if (rapport != null) {
-                database.rapportDao().inserer(rapport);
+            if (r != null) {
+                database.rapportDao().inserer(r);
+                RapportEntity finalR = r;
 
-                String contenu = rapport.getContenuRapport();
-
-                runOnUiThread(() -> {
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("📊 " + type)
-                            .setMessage(contenu)
-                            .setPositiveButton("OK", null)
-                            .show();
-                });
+                runOnUiThread(() ->
+                        new AlertDialog.Builder(this)
+                                .setTitle("\uD83D\uDCCA " + finalR.getTypeRapport())
+                                .setMessage(finalR.getContenuRapport())
+                                .setPositiveButton("OK", null)
+                                .show());
             }
         });
     }
 
-
-    /**
-     * Afficher les rapports sauvegardés
-     */
     private void afficherRapportsSauvegardes() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<RapportEntity> rapports = database.rapportDao().getTousLesRapports();
+            List<RapportEntity> rapports =
+                    database.rapportDao().getTousLesRapports();
 
             runOnUiThread(() -> {
                 if (rapports.isEmpty()) {
-                    Toast.makeText(this, "📭 Aucun rapport sauvegardé", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,
+                            "\uD83D\uDCEB Aucun rapport sauvegardé",
+                            Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                String[] titresRapports = new String[rapports.size()];
+                String[] titres = new String[rapports.size()];
                 for (int i = 0; i < rapports.size(); i++) {
-                    RapportEntity r = rapports.get(i);
-                    titresRapports[i] = r.getTypeRapport() + " - " + r.getDateFormatee();
+                    titres[i] = rapports.get(i).getTypeRapport() +
+                            " - " + rapports.get(i).getDateFormatee();
                 }
 
                 new AlertDialog.Builder(this)
-                        .setTitle("📚 Rapports sauvegardés")
-                        .setItems(titresRapports, (dialog, which) -> {
-                            RapportEntity rapportSelectionne = rapports.get(which);
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setTitle("📊 " + rapportSelectionne.getTypeRapport())
-                                    .setMessage(rapportSelectionne.getContenuRapport())
-                                    .setPositiveButton("OK", null)
-                                    .show();
-                        })
-                        .setNegativeButton("Fermer", null)
+                        .setTitle("\uD83D\uDCD6 Rapports sauvegardés")
+                        .setItems(titres, (d, w) ->
+                                new AlertDialog.Builder(this)
+                                        .setTitle("\uD83D\uDCCA " +
+                                                rapports.get(w).getTypeRapport())
+                                        .setMessage(
+                                                rapports.get(w).getContenuRapport())
+                                        .setPositiveButton("OK", null)
+                                        .show())
                         .show();
             });
         });
     }
 
-
-    /**
-     * Mettre à jour la situation
-     */
     private void mettreAJourSituation() {
         Executors.newSingleThreadExecutor().execute(() -> {
             Calendar cal = Calendar.getInstance();
             int mois = cal.get(Calendar.MONTH) + 1;
             int annee = cal.get(Calendar.YEAR);
 
-            Double totalDepenses = database.depenseDao().getTotalMois(mois, annee);
-            if (totalDepenses == null) totalDepenses = 0.0;
+            Double totalFromDb = database.depenseDao().getTotalMois(mois, annee);
+            final double total = (totalFromDb == null) ? 0.0 : totalFromDb;
 
-            int nbDepenses = database.depenseDao().getNombreDepensesJour(
-                    cal.get(Calendar.DAY_OF_MONTH), mois, annee
-            );
-
-            double reste = budgetMensuel - totalDepenses;
-
-            final double finalTotal = totalDepenses;
-            final int finalNb = nbDepenses;
+            final double reste = budgetMensuel - total;
 
             runOnUiThread(() -> {
-                StringBuilder situation = new StringBuilder();
-                situation.append("💰 SITUATION GLOBALE\n");
-                situation.append("════════════════════════\n\n");
-                situation.append("Budget mensuel : ").append(String.format("%.0f", budgetMensuel)).append(" FCFA\n");
-                situation.append("Dépenses totales : ").append(String.format("%.0f", finalTotal)).append(" FCFA\n");
-                situation.append("────────────────────────\n");
+                String txt =
+                        "\uD83D\uDCB0 SITUATION GLOBALE\n\n" +
+                                "Budget : " + budgetMensuel + " FCFA\n" +
+                                "Dépenses : " + total + " FCFA\n" +
+                                (reste < 0
+                                        ? "\uD83D\uDEA8 DÉFICIT : "
+                                        : "\u2705 SURPLUS : ") +
+                                Math.abs(reste) + " FCFA";
 
-                if (reste < 0) {
-                    situation.append("🚨 DÉFICIT : ").append(String.format("%.0f", Math.abs(reste))).append(" FCFA\n");
-                } else {
-                    situation.append("✅ SURPLUS : ").append(String.format("%.0f", reste)).append(" FCFA\n");
-                }
-
-                double pourcentage = (finalTotal / budgetMensuel) * 100.0;
-                situation.append("\n📊 Utilisé : ").append(String.format("%.1f", pourcentage)).append("%\n");
-                situation.append("📝 Transactions aujourd'hui : ").append(finalNb);
-
-                textSituation.setText(situation.toString());
+                textSituation.setText(txt);
             });
         });
     }
+
 }

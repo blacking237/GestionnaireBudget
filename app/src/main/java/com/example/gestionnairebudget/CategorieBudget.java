@@ -3,29 +3,22 @@ package com.example.gestionnairebudget;
 /**
  * CLASSE CategorieBudget
  *
- * Représente une catégorie de dépenses avec :
- * - Nom de la catégorie
- * - Pourcentage alloué
- * - Montant alloué (calculé depuis le budget)
- * - Montant utilisé
+ * Represente une categorie de depenses avec :
+ * - Nom de la categorie
+ * - Pourcentage alloue
+ * - Montant alloue
+ * - Montant utilise
  * - Couleur selon l'utilisation
  */
 public class CategorieBudget {
 
     // ========== ATTRIBUTS ==========
     private String nom;
-    private double pourcentageAlloue;    // Ex: 15% pour Projets
-    private double montantAlloue;        // Calculé depuis le budget total
-    private double montantUtilise;       // Ce qui a été dépensé
-
+    private double pourcentageAlloue;
+    private double montantAlloue;
+    private double montantUtilise;
 
     // ========== CONSTRUCTEUR ==========
-    /**
-     * Crée une nouvelle catégorie de budget
-     *
-     * @param nom : nom de la catégorie (ex: "Transport")
-     * @param pourcentageAlloue : pourcentage du budget (ex: 5.0 pour 5%)
-     */
     public CategorieBudget(String nom, double pourcentageAlloue) {
         this.nom = nom;
         this.pourcentageAlloue = pourcentageAlloue;
@@ -33,26 +26,15 @@ public class CategorieBudget {
         this.montantUtilise = 0.0;
     }
 
-
-    // ========== MÉTHODES DE CALCUL ==========
-
-    /**
-     * Calcule le montant alloué à partir du budget total
-     */
+    // ========== METHODES DE CALCUL ==========
     public void calculerMontantAlloue(double budgetTotal) {
         this.montantAlloue = budgetTotal * (pourcentageAlloue / 100.0);
     }
 
-    /**
-     * Ajoute une dépense à cette catégorie
-     */
     public void ajouterDepense(double montant) {
         this.montantUtilise += montant;
     }
 
-    /**
-     * Calcule le pourcentage utilisé
-     */
     public double getPourcentageUtilise() {
         if (montantAlloue == 0) {
             return 0.0;
@@ -60,18 +42,12 @@ public class CategorieBudget {
         return (montantUtilise / montantAlloue) * 100.0;
     }
 
-    /**
-     * Calcule le montant restant
-     */
     public double getMontantRestant() {
         return montantAlloue - montantUtilise;
     }
 
     /**
-     * Détermine la couleur selon l'utilisation
-     * VERT : < 50%
-     * ORANGE : 50% - 70%
-     * ROSE : >= 70%
+     * Couleur logique (texte)
      */
     public String getCouleur() {
         double pourcentage = getPourcentageUtilise();
@@ -86,47 +62,42 @@ public class CategorieBudget {
     }
 
     /**
-     * Retourne le code couleur Android
+     * Code couleur Android
      */
     public int getCouleurCode() {
         double pourcentage = getPourcentageUtilise();
 
         if (pourcentage < 50) {
-            return 0xFF4CAF50;  // Vert
+            return 0xFF4CAF50; // Vert
         } else if (pourcentage < 70) {
-            return 0xFFFF9800;  // Orange
+            return 0xFFFF9800; // Orange
         } else {
-            return 0xFFFFB6C1;  // Rose clair
+            return 0xFFFFB6C1; // Rose
         }
     }
 
     /**
-     * Retourne un emoji selon l'état
+     * Emoji selon l'etat (Unicode safe)
      */
     public String getEmoji() {
         double pourcentage = getPourcentageUtilise();
 
         if (pourcentage < 50) {
-            return "✅";
+            return "\u2705";
         } else if (pourcentage < 70) {
-            return "⚠️";
+            return "\u26A0";
         } else if (pourcentage < 100) {
-            return "🚨";
+            return "\uD83D\uDEA8";
         } else {
-            return "❌";
+            return "\u274C";
         }
     }
 
-    /**
-     * Vérifie si la catégorie est en dépassement
-     */
     public boolean estEnDepassement() {
         return montantUtilise > montantAlloue;
     }
 
-
     // ========== GETTERS ==========
-
     public String getNom() {
         return nom;
     }
@@ -143,9 +114,7 @@ public class CategorieBudget {
         return montantUtilise;
     }
 
-
     // ========== SETTERS ==========
-
     public void setMontantUtilise(double montantUtilise) {
         this.montantUtilise = montantUtilise;
     }
@@ -154,14 +123,10 @@ public class CategorieBudget {
         this.montantUtilise = 0.0;
     }
 
-
-    // ========== MÉTHODE D'AFFICHAGE ==========
-
-    /**
-     * Retourne un résumé de la catégorie
-     */
+    // ========== AFFICHAGE ==========
     public String afficherResume() {
-        return String.format("%s %s (%.0f%%)\nAlloué: %.0f FCFA | Utilisé: %.0f FCFA | Reste: %.0f FCFA\nUtilisation: %.1f%%",
+        return String.format(
+                "%s %s (%.0f%%)\nAlloue: %.0f FCFA | Utilise: %.0f FCFA | Reste: %.0f FCFA\nUtilisation: %.1f%%",
                 getEmoji(),
                 nom,
                 pourcentageAlloue,
@@ -173,21 +138,15 @@ public class CategorieBudget {
     }
 }
 
-
 /**
  * CLASSE UTILITAIRE : CategoriesManager
- * Gère toutes les catégories prédéfinies
  */
 class CategoriesManager {
 
-    /**
-     * Crée et retourne toutes les catégories prédéfinies
-     * Total = 100%
-     */
     public static CategorieBudget[] creerCategoriesParDefaut() {
-        return new CategorieBudget[] {
+        return new CategorieBudget[]{
                 new CategorieBudget("Projets", 15.0),
-                new CategorieBudget("Santé", 5.0),
+                new CategorieBudget("Sante", 5.0),
                 new CategorieBudget("Nutrition", 30.0),
                 new CategorieBudget("Loyer", 20.0),
                 new CategorieBudget("Internet", 3.0),
@@ -199,9 +158,6 @@ class CategoriesManager {
         };
     }
 
-    /**
-     * Vérifie que le total des pourcentages = 100%
-     */
     public static boolean verifierTotal(CategorieBudget[] categories) {
         double total = 0.0;
 
@@ -209,6 +165,6 @@ class CategoriesManager {
             total += categories[i].getPourcentageAlloue();
         }
 
-        return Math.abs(total - 100.0) < 0.01; // Tolérance de 0.01%
+        return Math.abs(total - 100.0) < 0.01;
     }
 }

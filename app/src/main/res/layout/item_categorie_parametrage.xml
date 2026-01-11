@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="10dp"
+    android:background="#FAFAFA"
+    android:layout_marginBottom="8dp">
+
+    <!-- NOM DE LA CATÉGORIE -->
+    <TextView
+        android:id="@+id/textNomCategorie"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Transport"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#000000"/>
+
+    <!-- POURCENTAGE -->
+    <EditText
+        android:id="@+id/editPourcentage"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:hint="0"
+        android:inputType="numberDecimal"
+        android:padding="8dp"
+        android:textSize="14sp"
+        android:textAlignment="center"
+        android:background="@android:color/white"
+        android:layout_marginEnd="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="%"
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:layout_marginEnd="10dp"/>
+
+    <!-- BOUTON SUPPRIMER -->
+    <Button
+        android:id="@+id/btnSupprimerCategorie"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:text="Del"
+        android:textSize="16sp"
+        android:backgroundTint="#F44336"
+        style="?android:attr/borderlessButtonStyle"/>
+
+</LinearLayout>

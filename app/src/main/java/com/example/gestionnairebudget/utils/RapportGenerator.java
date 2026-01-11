@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * GÉNÉRATEUR DE RAPPORTS
+ * GENERATEUR DE RAPPORTS
  *
- * Crée automatiquement des rapports :
+ * Cree automatiquement des rapports :
  * - Journaliers (chaque jour)
- * - Hebdomadaires (chaque dimanche soir à 23h59)
+ * - Hebdomadaires (chaque dimanche soir a 23h59)
  * - Mensuels (dernier jour du mois)
  */
 public class RapportGenerator {
@@ -27,10 +27,9 @@ public class RapportGenerator {
         this.budgetMensuel = budgetMensuel;
     }
 
-
     /**
      * RAPPORT JOURNALIER
-     * Génère le rapport des dépenses d'aujourd'hui
+     * Genere le rapport des depenses d'aujourd'hui
      */
     public RapportEntity genererRapportJournalier() {
         Calendar cal = Calendar.getInstance();
@@ -39,72 +38,82 @@ public class RapportGenerator {
         int annee = cal.get(Calendar.YEAR);
         int semaine = cal.get(Calendar.WEEK_OF_YEAR);
 
-        // Récupérer les dépenses du jour
-        List<DepenseEntity> depensesJour = database.depenseDao().getDepensesParJour(jour, mois, annee);
+        List<DepenseEntity> depensesJour =
+                database.depenseDao().getDepensesParJour(jour, mois, annee);
 
-        // Calculer le total
         double totalJour = 0.0;
         for (DepenseEntity d : depensesJour) {
             totalJour += d.getMontant();
         }
 
-        // Budget journalier = budget mensuel / 30
         double budgetJournalier = budgetMensuel / 30.0;
         double surplus = budgetJournalier - totalJour;
 
-        // Calculer l'évolution par rapport à hier
         double evolutionPourcentage = 0.0;
-        cal.add(Calendar.DAY_OF_MONTH, -1);  // Hier
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+
         int jourHier = cal.get(Calendar.DAY_OF_MONTH);
         int moisHier = cal.get(Calendar.MONTH) + 1;
         int anneeHier = cal.get(Calendar.YEAR);
 
-        Double totalHier = database.depenseDao().getTotalJour(jourHier, moisHier, anneeHier);
+        Double totalHier =
+                database.depenseDao().getTotalJour(jourHier, moisHier, anneeHier);
+
         if (totalHier != null && totalHier > 0) {
-            evolutionPourcentage = ((totalJour - totalHier) / totalHier) * 100.0;
+            evolutionPourcentage =
+                    ((totalJour - totalHier) / totalHier) * 100.0;
         }
 
-        // Générer le contenu du rapport
         StringBuilder rapport = new StringBuilder();
-        rapport.append("📊 RAPPORT JOURNALIER\n");
-        rapport.append("═══════════════════════════\n");
-        rapport.append("📅 Date : ").append(getCurrentDate()).append("\n\n");
+        rapport.append("\uD83D\uDCCA RAPPORT JOURNALIER\n");
+        rapport.append("================================\n");
+        rapport.append("\uD83D\uDCC5 Date : ")
+                .append(getCurrentDate()).append("\n\n");
 
-        rapport.append("💰 RÉSUMÉ FINANCIER\n");
-        rapport.append("Budget journalier : ").append(String.format("%.0f", budgetJournalier)).append(" FCFA\n");
-        rapport.append("Dépenses du jour : ").append(String.format("%.0f", totalJour)).append(" FCFA\n");
+        rapport.append("\uD83D\uDCB0 RESUME FINANCIER\n");
+        rapport.append("Budget journalier : ")
+                .append(String.format("%.0f", budgetJournalier))
+                .append(" FCFA\n");
+        rapport.append("Depenses du jour : ")
+                .append(String.format("%.0f", totalJour))
+                .append(" FCFA\n");
 
         if (surplus >= 0) {
-            rapport.append("✅ Surplus : ").append(String.format("%.0f", surplus)).append(" FCFA\n");
+            rapport.append("\u2705 Surplus : ")
+                    .append(String.format("%.0f", surplus))
+                    .append(" FCFA\n");
         } else {
-            rapport.append("❌ Déficit : ").append(String.format("%.0f", Math.abs(surplus))).append(" FCFA\n");
+            rapport.append("\u274C Deficit : ")
+                    .append(String.format("%.0f", Math.abs(surplus)))
+                    .append(" FCFA\n");
         }
 
-        rapport.append("\n📊 ÉVOLUTION\n");
+        rapport.append("\n\uD83D\uDCCA EVOLUTION\n");
         if (totalHier != null) {
             if (evolutionPourcentage > 0) {
-                rapport.append("📈 +").append(String.format("%.1f", evolutionPourcentage)).append("% par rapport à hier\n");
+                rapport.append("\uD83D\uDCC8 +")
+                        .append(String.format("%.1f", evolutionPourcentage))
+                        .append("% par rapport a hier\n");
             } else if (evolutionPourcentage < 0) {
-                rapport.append("📉 ").append(String.format("%.1f", evolutionPourcentage)).append("% par rapport à hier\n");
+                rapport.append("\uD83D\uDCC9 ")
+                        .append(String.format("%.1f", evolutionPourcentage))
+                        .append("% par rapport a hier\n");
             } else {
-                rapport.append("➡️ Même niveau qu'hier\n");
+                rapport.append("\u27A1 Meme niveau qu'hier\n");
             }
         }
 
-        rapport.append("\n📝 DÉTAILS\n");
-        rapport.append("Nombre de transactions : ").append(depensesJour.size()).append("\n");
+        rapport.append("\n\uD83D\uDCDD DETAILS\n");
+        rapport.append("Nombre de transactions : ")
+                .append(depensesJour.size()).append("\n");
 
-        // Analyser par catégorie
-        rapport.append("\n💳 PAR CATÉGORIE\n");
+        rapport.append("\n\uD83D\uDCB3 PAR CATEGORIE\n");
         rapport.append(analyserParCategorie(depensesJour));
 
-        // Créer l'entité rapport
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        SimpleDateFormat sdf =
+                new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
-        cal = Calendar.getInstance();  // Remettre à aujourd'hui
-        jour = cal.get(Calendar.DAY_OF_MONTH);
-        mois = cal.get(Calendar.MONTH) + 1;
-        annee = cal.get(Calendar.YEAR);
+        cal = Calendar.getInstance();
 
         return new RapportEntity(
                 "JOURNALIER",
@@ -123,10 +132,8 @@ public class RapportGenerator {
         );
     }
 
-
     /**
      * RAPPORT HEBDOMADAIRE
-     * Génère le rapport de la semaine (dimanche soir)
      */
     public RapportEntity genererRapportHebdomadaire() {
         Calendar cal = Calendar.getInstance();
@@ -135,59 +142,78 @@ public class RapportGenerator {
         int mois = cal.get(Calendar.MONTH) + 1;
         int jour = cal.get(Calendar.DAY_OF_MONTH);
 
-        // Récupérer les dépenses de la semaine
-        List<DepenseEntity> depensesSemaine = database.depenseDao().getDepensesParSemaine(semaine, annee);
+        List<DepenseEntity> depensesSemaine =
+                database.depenseDao().getDepensesParSemaine(semaine, annee);
 
         double totalSemaine = 0.0;
         for (DepenseEntity d : depensesSemaine) {
             totalSemaine += d.getMontant();
         }
 
-        // Budget hebdomadaire = budget mensuel / 4
         double budgetHebdo = budgetMensuel / 4.0;
         double surplus = budgetHebdo - totalSemaine;
 
-        // Évolution par rapport à la semaine dernière
         double evolutionPourcentage = 0.0;
-        Double totalSemainePrecedente = database.depenseDao().getTotalSemaine(semaine - 1, annee);
+        Double totalSemainePrecedente =
+                database.depenseDao().getTotalSemaine(semaine - 1, annee);
+
         if (totalSemainePrecedente != null && totalSemainePrecedente > 0) {
-            evolutionPourcentage = ((totalSemaine - totalSemainePrecedente) / totalSemainePrecedente) * 100.0;
+            evolutionPourcentage =
+                    ((totalSemaine - totalSemainePrecedente)
+                            / totalSemainePrecedente) * 100.0;
         }
 
-        // Générer le rapport
         StringBuilder rapport = new StringBuilder();
-        rapport.append("📊 RAPPORT HEBDOMADAIRE\n");
-        rapport.append("═══════════════════════════\n");
-        rapport.append("📅 Semaine ").append(semaine).append(" de ").append(annee).append("\n");
-        rapport.append("📅 Généré le : ").append(getCurrentDate()).append("\n\n");
+        rapport.append("\uD83D\uDCCA RAPPORT HEBDOMADAIRE\n");
+        rapport.append("================================\n");
+        rapport.append("\uD83D\uDCC5 Semaine ")
+                .append(semaine).append(" - ").append(annee).append("\n");
+        rapport.append("\uD83D\uDCC5 Genere le : ")
+                .append(getCurrentDate()).append("\n\n");
 
-        rapport.append("💰 RÉSUMÉ FINANCIER\n");
-        rapport.append("Budget hebdomadaire : ").append(String.format("%.0f", budgetHebdo)).append(" FCFA\n");
-        rapport.append("Dépenses de la semaine : ").append(String.format("%.0f", totalSemaine)).append(" FCFA\n");
+        rapport.append("\uD83D\uDCB0 RESUME FINANCIER\n");
+        rapport.append("Budget hebdomadaire : ")
+                .append(String.format("%.0f", budgetHebdo))
+                .append(" FCFA\n");
+        rapport.append("Depenses semaine : ")
+                .append(String.format("%.0f", totalSemaine))
+                .append(" FCFA\n");
 
         if (surplus >= 0) {
-            rapport.append("✅ Surplus : ").append(String.format("%.0f", surplus)).append(" FCFA\n");
+            rapport.append("\u2705 Surplus : ")
+                    .append(String.format("%.0f", surplus))
+                    .append(" FCFA\n");
         } else {
-            rapport.append("❌ Déficit : ").append(String.format("%.0f", Math.abs(surplus))).append(" FCFA\n");
+            rapport.append("\u274C Deficit : ")
+                    .append(String.format("%.0f", Math.abs(surplus)))
+                    .append(" FCFA\n");
         }
 
-        rapport.append("\n📊 ÉVOLUTION\n");
+        rapport.append("\n\uD83D\uDCCA EVOLUTION\n");
         if (totalSemainePrecedente != null) {
             if (evolutionPourcentage > 0) {
-                rapport.append("📈 +").append(String.format("%.1f", evolutionPourcentage)).append("% vs semaine précédente\n");
+                rapport.append("\uD83D\uDCC8 +")
+                        .append(String.format("%.1f", evolutionPourcentage))
+                        .append("% vs semaine precedente\n");
             } else if (evolutionPourcentage < 0) {
-                rapport.append("📉 ").append(String.format("%.1f", evolutionPourcentage)).append("% vs semaine précédente\n");
+                rapport.append("\uD83D\uDCC9 ")
+                        .append(String.format("%.1f", evolutionPourcentage))
+                        .append("% vs semaine precedente\n");
             }
         }
 
-        rapport.append("\n📝 DÉTAILS\n");
-        rapport.append("Nombre de transactions : ").append(depensesSemaine.size()).append("\n");
-        rapport.append("Moyenne journalière : ").append(String.format("%.0f", totalSemaine / 7.0)).append(" FCFA\n");
+        rapport.append("\n\uD83D\uDCDD DETAILS\n");
+        rapport.append("Transactions : ")
+                .append(depensesSemaine.size()).append("\n");
+        rapport.append("Moyenne journaliere : ")
+                .append(String.format("%.0f", totalSemaine / 7.0))
+                .append(" FCFA\n");
 
-        rapport.append("\n💳 PAR CATÉGORIE\n");
+        rapport.append("\n\uD83D\uDCB3 PAR CATEGORIE\n");
         rapport.append(analyserParCategorie(depensesSemaine));
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        SimpleDateFormat sdf =
+                new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
         return new RapportEntity(
                 "HEBDOMADAIRE",
@@ -206,7 +232,6 @@ public class RapportGenerator {
         );
     }
 
-
     /**
      * RAPPORT MENSUEL
      */
@@ -217,7 +242,8 @@ public class RapportGenerator {
         int jour = cal.get(Calendar.DAY_OF_MONTH);
         int semaine = cal.get(Calendar.WEEK_OF_YEAR);
 
-        List<DepenseEntity> depensesMois = database.depenseDao().getDepensesParMois(mois, annee);
+        List<DepenseEntity> depensesMois =
+                database.depenseDao().getDepensesParMois(mois, annee);
 
         double totalMois = 0.0;
         for (DepenseEntity d : depensesMois) {
@@ -226,52 +252,75 @@ public class RapportGenerator {
 
         double surplus = budgetMensuel - totalMois;
 
-        // Évolution par rapport au mois précédent
         double evolutionPourcentage = 0.0;
         int moisPrecedent = (mois == 1) ? 12 : mois - 1;
         int anneePrecedente = (mois == 1) ? annee - 1 : annee;
 
-        Double totalMoisPrecedent = database.depenseDao().getTotalMois(moisPrecedent, anneePrecedente);
+        Double totalMoisPrecedent =
+                database.depenseDao().getTotalMois(moisPrecedent, anneePrecedente);
+
         if (totalMoisPrecedent != null && totalMoisPrecedent > 0) {
-            evolutionPourcentage = ((totalMois - totalMoisPrecedent) / totalMoisPrecedent) * 100.0;
+            evolutionPourcentage =
+                    ((totalMois - totalMoisPrecedent)
+                            / totalMoisPrecedent) * 100.0;
         }
 
         StringBuilder rapport = new StringBuilder();
-        rapport.append("📊 RAPPORT MENSUEL\n");
-        rapport.append("═══════════════════════════\n");
-        rapport.append("📅 Mois : ").append(getNomMois(mois)).append(" ").append(annee).append("\n");
-        rapport.append("📅 Généré le : ").append(getCurrentDate()).append("\n\n");
+        rapport.append("\uD83D\uDCCA RAPPORT MENSUEL\n");
+        rapport.append("================================\n");
+        rapport.append("\uD83D\uDCC5 Mois : ")
+                .append(getNomMois(mois)).append(" ").append(annee).append("\n");
+        rapport.append("\uD83D\uDCC5 Genere le : ")
+                .append(getCurrentDate()).append("\n\n");
 
-        rapport.append("💰 RÉSUMÉ FINANCIER\n");
-        rapport.append("Budget mensuel : ").append(String.format("%.0f", budgetMensuel)).append(" FCFA\n");
-        rapport.append("Dépenses du mois : ").append(String.format("%.0f", totalMois)).append(" FCFA\n");
+        rapport.append("\uD83D\uDCB0 RESUME FINANCIER\n");
+        rapport.append("Budget mensuel : ")
+                .append(String.format("%.0f", budgetMensuel))
+                .append(" FCFA\n");
+        rapport.append("Depenses du mois : ")
+                .append(String.format("%.0f", totalMois))
+                .append(" FCFA\n");
 
         if (surplus >= 0) {
-            rapport.append("✅ Surplus : ").append(String.format("%.0f", surplus)).append(" FCFA\n");
+            rapport.append("\u2705 Surplus : ")
+                    .append(String.format("%.0f", surplus))
+                    .append(" FCFA\n");
         } else {
-            rapport.append("❌ Déficit : ").append(String.format("%.0f", Math.abs(surplus))).append(" FCFA\n");
+            rapport.append("\u274C Deficit : ")
+                    .append(String.format("%.0f", Math.abs(surplus)))
+                    .append(" FCFA\n");
         }
 
-        double pourcentageUtilise = (totalMois / budgetMensuel) * 100.0;
-        rapport.append("📊 Budget utilisé : ").append(String.format("%.1f", pourcentageUtilise)).append("%\n");
+        rapport.append("Budget utilise : ")
+                .append(String.format("%.1f",
+                        (totalMois / budgetMensuel) * 100.0))
+                .append("%\n");
 
-        rapport.append("\n📊 ÉVOLUTION\n");
+        rapport.append("\n\uD83D\uDCCA EVOLUTION\n");
         if (totalMoisPrecedent != null) {
             if (evolutionPourcentage > 0) {
-                rapport.append("📈 +").append(String.format("%.1f", evolutionPourcentage)).append("% vs mois précédent\n");
+                rapport.append("\uD83D\uDCC8 +")
+                        .append(String.format("%.1f", evolutionPourcentage))
+                        .append("% vs mois precedent\n");
             } else if (evolutionPourcentage < 0) {
-                rapport.append("📉 ").append(String.format("%.1f", evolutionPourcentage)).append("% vs mois précédent\n");
+                rapport.append("\uD83D\uDCC9 ")
+                        .append(String.format("%.1f", evolutionPourcentage))
+                        .append("% vs mois precedent\n");
             }
         }
 
-        rapport.append("\n📝 DÉTAILS\n");
-        rapport.append("Nombre de transactions : ").append(depensesMois.size()).append("\n");
-        rapport.append("Moyenne journalière : ").append(String.format("%.0f", totalMois / 30.0)).append(" FCFA\n");
+        rapport.append("\n\uD83D\uDCDD DETAILS\n");
+        rapport.append("Transactions : ")
+                .append(depensesMois.size()).append("\n");
+        rapport.append("Moyenne journaliere : ")
+                .append(String.format("%.0f", totalMois / 30.0))
+                .append(" FCFA\n");
 
-        rapport.append("\n💳 PAR CATÉGORIE\n");
+        rapport.append("\n\uD83D\uDCB3 PAR CATEGORIE\n");
         rapport.append(analyserParCategorie(depensesMois));
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        SimpleDateFormat sdf =
+                new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
         return new RapportEntity(
                 "MENSUEL",
@@ -290,22 +339,18 @@ public class RapportGenerator {
         );
     }
 
-
     /**
-     * MÉTHODE UTILITAIRE : Analyser les dépenses par catégorie
+     * Analyse des depenses par categorie
      */
     private String analyserParCategorie(List<DepenseEntity> depenses) {
-        // Tableaux pour stocker les catégories et totaux
         String[] categories = new String[10];
         double[] totaux = new double[10];
         int nbCategories = 0;
 
-        // BOUCLE : Parcourir toutes les dépenses
         for (DepenseEntity d : depenses) {
             String cat = d.getCategorie();
             double montant = d.getMontant();
 
-            // Chercher si la catégorie existe
             int index = -1;
             for (int i = 0; i < nbCategories; i++) {
                 if (categories[i].equals(cat)) {
@@ -323,41 +368,43 @@ public class RapportGenerator {
             }
         }
 
-        // Trier par montant décroissant
         for (int i = 0; i < nbCategories - 1; i++) {
             for (int j = i + 1; j < nbCategories; j++) {
                 if (totaux[j] > totaux[i]) {
-                    double tempTotal = totaux[i];
+                    double t = totaux[i];
                     totaux[i] = totaux[j];
-                    totaux[j] = tempTotal;
+                    totaux[j] = t;
 
-                    String tempCat = categories[i];
+                    String c = categories[i];
                     categories[i] = categories[j];
-                    categories[j] = tempCat;
+                    categories[j] = c;
                 }
             }
         }
 
-        // Générer le texte
         StringBuilder resultat = new StringBuilder();
         for (int i = 0; i < nbCategories; i++) {
-            resultat.append("• ").append(categories[i]).append(" : ")
-                    .append(String.format("%.0f", totaux[i])).append(" FCFA\n");
+            resultat.append("- ")
+                    .append(categories[i])
+                    .append(" : ")
+                    .append(String.format("%.0f", totaux[i]))
+                    .append(" FCFA\n");
         }
 
         return resultat.toString();
     }
 
-
-    // Méthodes utilitaires
     private String getCurrentDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        SimpleDateFormat sdf =
+                new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         return sdf.format(new Date());
     }
 
     private String getNomMois(int mois) {
-        String[] noms = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
+        String[] noms = {
+                "Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin",
+                "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"
+        };
         return noms[mois - 1];
     }
 }

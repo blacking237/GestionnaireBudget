@@ -1,5 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Couleurs de base -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="vert_fonce">#1B5E20</color>
+    <color name="rose_bonbon">#F06292</color>
+    <color name="rouge_bordeaux">#800020</color>
+    <color name="gris_clair">#D3D3D3</color>
+    <color name="bleu_ciel">#87CEEB</color>
+    <color name="bleu_marine">#000080</color>
+    <color name="bleu_turquoise">#40E0D0</color>
+    <color name="jaune_or">#FFD700</color>
+    <color name="vert_citron">#32CD32</color>
+    <color name="violet">#8A2BE2</color>
+    <color name="orange">#FF8C00</color>
+
+    <!-- Couleurs de marque -->
+    <color name="brand_blue">#0061FF</color>
+    <color name="soft_navy">#1A237E</color>
+    <color name="facebook_blue">#1877F2</color>
+
+    <!-- Textes et fonds -->
+    <color name="text_primary">#1C1C1E</color>
+    <color name="text_secondary">#6E6E73</color>
+    <color name="bg_light_gray">#F2F2F7</color>
+    <color name="surface_white">#FFFFFF</color>
+
+    <!-- Couleurs d'action (CTA) -->
+    <color name="success_green">#34C759</color>
+    <color name="warning_orange">#FF9500</color>
+    <color name="error_red">#FF3B30</color>
+    <color name="instagram_pink">#E1306C</color>
+
+    <!-- Couleurs premium -->
+    <color name="premium_gold">#D4AF37</color>
+    <color name="deep_purple">#673AB7</color>
+    <color name="teal_modern">#008080</color>
+
 </resources>

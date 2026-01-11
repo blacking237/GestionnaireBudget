@@ -1,232 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="#F0F0F0">
 
-    <LinearLayout
+    <!-- ================= CONTENU SCROLLABLE ================= -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <!-- TITRE -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="💰 Gestionnaire Budget Njanga"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:textColor="#1976D2"
-            android:paddingTop="10dp"
-            android:paddingBottom="20dp"/>
-
-        <!-- ============ SECTION 1 : BUDGET ============ -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="1️⃣ Définir votre budget mensuel"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:paddingBottom="10dp"/>
-
-        <EditText
-            android:id="@+id/editBudget"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Entrez votre budget (FCFA)"
-            android:inputType="numberDecimal"
-            android:padding="15dp"
-            android:background="@android:color/white"
-            android:textSize="16sp"
-            android:layout_marginBottom="10dp"/>
-
-        <Button
-            android:id="@+id/btnDefinirBudget"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=" Définir Budget et Activer Rapports Auto"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="25dp"/>
-
-        <!-- ============ SECTION 2 : CATÉGORIES ============ -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="📊 Répartition par catégorie"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:paddingBottom="10dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🟢 Vert: &lt;50% | 🟠 Orange: 50-70% | 🌸 Rose: ≥70%"
-            android:textSize="12sp"
-            android:textColor="#666666"
-            android:paddingBottom="10dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
-            android:id="@+id/layoutCategories"
+            android:animateLayoutChanges="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="25dp">
+            android:padding="16dp">
+
+            <!-- TITRE -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gestionnaire Budget Pro"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="#1976D2"
+                android:paddingTop="10dp"
+                android:paddingBottom="20dp"/>
+
+            <!-- SECTION 1 : BUDGET -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Définir votre budget mensuel"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:paddingBottom="10dp"/>
+
+            <EditText
+                android:id="@+id/editBudget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Entrez votre budget (FCFA)"
+                android:inputType="numberDecimal"
+                android:padding="15dp"
+                android:background="@android:color/white"
+                android:textSize="16sp"
+                android:layout_marginBottom="10dp"/>
+
+            <Button
+                android:id="@+id/btnDefinirBudget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Définir Budget et Activer Rapports Auto"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="25dp"/>
+
+            <!-- SECTION 2 : CATÉGORIES -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Répartition par catégorie"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:paddingBottom="10dp"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Définissez d'abord votre budget pour voir la répartition"
-                android:textSize="14sp"
+                android:text="Vert: &lt;50% | Orange: 50-70% | Rose: &gt;70%"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:paddingBottom="10dp"/>
+
+            <LinearLayout
+                android:id="@+id/layoutCategories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="25dp"/>
+
+            <!-- SECTION 3 : DÉPENSES -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enregistrer une dépense"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:paddingBottom="10dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerCategorie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:padding="15dp"
                 android:background="@android:color/white"
-                android:textColor="#666666"/>
+                android:layout_marginBottom="15dp"/>
+
+            <EditText
+                android:id="@+id/editDesignation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ex: Taxi pour le travail"
+                android:padding="15dp"
+                android:background="@android:color/white"
+                android:textSize="16sp"
+                android:layout_marginBottom="15dp"/>
+
+            <EditText
+                android:id="@+id/editMontant"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Montant en FCFA"
+                android:inputType="numberDecimal"
+                android:padding="15dp"
+                android:background="@android:color/white"
+                android:textSize="16sp"
+                android:layout_marginBottom="10dp"/>
+
+            <Button
+                android:id="@+id/btnAjouterDepense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ajouter Dépense"
+                android:textStyle="bold"
+                android:layout_marginBottom="25dp"/>
+
+            <!-- SECTION 4 : SITUATION -->
+            <TextView
+                android:id="@+id/textSituation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:background="@android:color/white"
+                android:layout_marginBottom="15dp"/>
+
+            <!-- SECTION 5 : RAPPORTS -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="15dp">
+
+                <Button
+                    android:id="@+id/btnVoirHistorique"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Historique"
+                    android:layout_marginEnd="5dp"/>
+
+                <Button
+                    android:id="@+id/btnGenererRapport"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Générer Rapport"
+                    android:layout_marginStart="5dp"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnVoirRapports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Voir Tous les Rapports Sauvegardés"
+                android:textStyle="bold"
+                android:layout_marginBottom="20dp"/>
+
+            <TextView
+                android:id="@+id/textHistorique"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:background="@android:color/white"/>
+
         </LinearLayout>
+    </ScrollView>
 
-        <!-- ============ SECTION 3 : DÉPENSES ============ -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="2️⃣ Enregistrer une dépense"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:paddingBottom="10dp"/>
+    <!-- ================= BARRE FIXE BAS ================= -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:padding="8dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Catégorie :"
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:paddingBottom="5dp"/>
-
-        <Spinner
-            android:id="@+id/spinnerCategorie"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:background="@android:color/white"
-            android:layout_marginBottom="15dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Désignation :"
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:paddingBottom="5dp"/>
-
-        <EditText
-            android:id="@+id/editDesignation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Ex: Taxi pour le travail"
-            android:inputType="text"
-            android:padding="15dp"
-            android:background="@android:color/white"
-            android:textSize="16sp"
-            android:layout_marginBottom="15dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Montant :"
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:paddingBottom="5dp"/>
-
-        <EditText
-            android:id="@+id/editMontant"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Montant en FCFA"
-            android:inputType="numberDecimal"
-            android:padding="15dp"
-            android:background="@android:color/white"
-            android:textSize="16sp"
-            android:layout_marginBottom="10dp"/>
-
-        <Button
-            android:id="@+id/btnAjouterDepense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="➕ Ajouter Dépense"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="25dp"/>
-
-        <!-- ============ SECTION 4 : SITUATION ============ -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="3️⃣ Situation globale"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:paddingBottom="10dp"/>
-
-        <TextView
-            android:id="@+id/textSituation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="💰 SITUATION GLOBALE\n\nDéfinissez d'abord votre budget mensuel"
-            android:textSize="15sp"
-            android:padding="15dp"
-            android:background="@android:color/white"
-            android:textColor="#000000"
-            android:layout_marginBottom="15dp"/>
-
-        <!-- ============ SECTION 5 : BOUTONS RAPPORTS ============ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="15dp">
+            android:orientation="horizontal">
 
             <Button
-                android:id="@+id/btnVoirHistorique"
+                android:id="@+id/btnRetour"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="📋 Historique"
-                android:textSize="13sp"
+                android:text="Retour"
                 android:layout_marginEnd="5dp"/>
 
             <Button
-                android:id="@+id/btnGenererRapport"
+                android:id="@+id/btnDeconnexion"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="📊 Générer Rapport"
-                android:textSize="13sp"
+                android:text="Déconnexion"
                 android:layout_marginStart="5dp"/>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnVoirRapports"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="📚 Voir Tous les Rapports Sauvegardés"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="15dp"/>
-
-        <!-- ============ SECTION 6 : HISTORIQUE ============ -->
         <TextView
-            android:id="@+id/textHistorique"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📋 HISTORIQUE\n\nCliquez sur 'Historique' pour voir vos dépenses"
-            android:textSize="14sp"
-            android:padding="15dp"
-            android:background="@android:color/white"
-            android:textColor="#000000"
-            android:layout_marginBottom="20dp"/>
-
+            android:text="© 2026 Developed By Njanga"
+            android:textSize="12sp"
+            android:textColor="#777777"
+            android:gravity="center"
+            android:paddingTop="4dp"/>
     </LinearLayout>
-</ScrollView>
+
+</LinearLayout>

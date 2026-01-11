@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    AndroidManifest.xml
+
+    Ce fichier configure TOUTE l'application Android.
+    Il déclare :
+    - Les permissions nécessaires
+    - Toutes les activities (pages) de l'app
+    - L'activity de démarrage (LAUNCHER)
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        PERMISSIONS
+        Liste des autorisations demandées à l'utilisateur
+    -->
+
+    <!-- Permission pour accéder à Internet (pour futures mises à jour) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Permission pour les notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -10,16 +30,93 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GestionnaireBudget">
+        android:theme="@style/Theme.GestionnaireBudget"
+        tools:targetApi="31">
+
+        <!--
+            ============================================
+            ACTIVITY 1 : LoginActivity (PAGE DE DÉMARRAGE)
+            ============================================
+
+            C'est la PREMIÈRE page qui s'affiche quand on lance l'app.
+
+            - android:exported="true" : Permet de lancer l'app depuis l'écran d'accueil
+            - intent-filter : Définit cette activity comme point d'entrée
+        -->
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!--
+            ============================================
+            ACTIVITY 2 : InscriptionActivity
+            ============================================
+
+            Page où l'utilisateur crée son compte.
+            Appelée depuis LoginActivity quand on clique sur "S'inscrire"
+        -->
+        <activity
+            android:name=".InscriptionActivity"
+            android:exported="false" />
+
+        <!--
+            ============================================
+            ACTIVITY 3 : ParametrageBudgetActivity
+            ============================================
+
+            Page de configuration du budget mensuel et des catégories.
+            Affichée après la première connexion si le budget n'est pas encore défini.
+        -->
+        <activity
+            android:name=".ParametrageBudgetActivity"
+            android:exported="false" />
+
+        <!--
+            ============================================
+            ACTIVITY 4 : MainActivity
+            ============================================
+
+            Page principale (Dashboard temporaire).
+            Sera remplacée plus tard par DashboardActivity.
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <!--
+            ============================================
+            FUTURES ACTIVITIES (à ajouter plus tard)
+            ============================================
+
+            Décommentons ces lignes quand nous créerons ces activities :
+
+            <activity
+                android:name=".DashboardActivity"
+                android:exported="false" />
+
+            <activity
+                android:name=".HistoriquesActivity"
+                android:exported="false" />
+        -->
+
     </application>
 
 </manifest>
+
+    <!--
+         ERREURS COURANTES À ÉVITER :
+
+        1. Oublier de déclarer une nouvelle Activity ici
+           → L'app crashera au lancement de cette page
+
+        2. Mettre android:exported="true" sur toutes les activities
+           → Risque de sécurité ! Seule la LAUNCHER doit être "true"
+
+        3. Oublier les permissions nécessaires
+           → Certaines fonctionnalités ne marcheront pas
+    -->

@@ -4,9 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.gestionnairebudget"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.gestionnairebudget"
@@ -27,6 +25,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -34,17 +33,25 @@ android {
 }
 
 dependencies {
+
+    // Android de base
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+
+    // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
     // Room - Base de données
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
 
-    // Lifecycle pour les rapports automatiques
+    // WorkManager - Tâches automatiques
     implementation("androidx.work:work-runtime:2.9.0")
+
+    // CardView (UI)
+    implementation("androidx.cardview:cardview:1.0.0")
 }

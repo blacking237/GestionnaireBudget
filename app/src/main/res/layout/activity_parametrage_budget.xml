@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_light_gray">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- CATÉGORIE -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <!-- TITRE -->
+                <TextView
+                    android:id="@+id/textCategorieTitre"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Projets (15%)"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/CategorieTitre" />
+
+                <!-- CONTENU -->
+                <TextView
+                    android:id="@+id/textCategorieDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Alloué : 15000 FCFA | Utilisé : 0 FCFA | Reste : 15000 FCFA"
+                    android:textColor="@color/text_primary" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Les autres catégories seront ajoutées dynamiquement par le Java -->
+    </LinearLayout>
+</ScrollView>
